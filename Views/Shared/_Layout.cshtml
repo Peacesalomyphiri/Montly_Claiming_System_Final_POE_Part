@@ -1,0 +1,173 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="rebeccapurple">
+    <title>@ViewData["Title"] - monthly_claiming_system</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/monthly_claiming_system.styles.css" asp-append-version="true" />
+    <style>
+        /* Global Styles */
+        body {
+            background-color: #f4f6f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+        }
+
+        .navbar-dark .navbar-nav .nav-link {
+            color: #7b68ee; /* Set navbar text color */
+            font-size: 1.1rem;
+            transition: color 0.3s ease;
+        }
+
+            .navbar-dark .navbar-nav .nav-link:hover {
+                color: #fff; /* Set hover color to white */
+            }
+
+        .navbar-dark .navbar-brand {
+            color: #7b68ee; /* Set brand text color */
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+
+            .navbar-dark .navbar-brand:hover {
+                color: #fff;
+            }
+
+        .navbar {
+            padding: 1rem 1.5rem;
+        }
+
+        /* Page Title */
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: #5a4eeb;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        /* Footer */
+        .footer {
+            background-color: #333;
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+        }
+
+            .footer a {
+                color: #7b68ee;
+                transition: color 0.3s ease;
+            }
+
+                .footer a:hover {
+                    color: #fff;
+                }
+
+        /* Main Content Section */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Card Style for Content */
+        .card {
+            background-color: #fff;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+            .card:hover {
+                transform: translateY(-10px);
+            }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #5a4eeb;
+            margin-bottom: 20px;
+        }
+
+        .card-text {
+            color: #777;
+            line-height: 1.6;
+        }
+
+        .btn-primary {
+            background-color: #7b68ee;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            transition: background-color 0.3s ease;
+        }
+
+            .btn-primary:hover {
+                background-color: #5a4eeb;
+            }
+    </style>
+</head>
+
+<body>
+    <!-- Header Section: App-specific Navbar -->
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container">
+                <a class="navbar-brand" href="@Url.Action("Index", "Home")">monthly_claiming_system</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
+                        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Index">Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Admin" asp-action="AdminRegister">Admin Registration</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content Section -->
+    <div class="container">
+        <h1 class="page-title">@ViewData["Title"]</h1>
+        <main role="main" class="pb-3">
+            @RenderBody()
+
+            <!-- Example of a Card Layout for Content -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Peace's Monthly Claim System</h5>
+                    <p class="card-text">Submit your monthly claims here!</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+
+    <!-- Scripts -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+
+</html>

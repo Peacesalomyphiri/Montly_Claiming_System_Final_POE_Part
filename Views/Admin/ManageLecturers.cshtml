@@ -1,0 +1,190 @@
+﻿@model monthly_claiming_system.Models.ManageLecturersViewModel
+
+@{
+    ViewData["Title"] = "Manage Lecturers";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa; /* Light background */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .container {
+            margin-top: 50px;
+        }
+
+        .card {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            background-color: white;
+            padding: 20px;
+        }
+
+        .card-header {
+            background-color: #004085; /* Blue color for header */
+            color: white;
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+
+        .btn-primary {
+            background-color: #0056b3;
+            border-color: #004085;
+        }
+
+            .btn-primary:hover {
+                background-color: #004085;
+                border-color: #003366;
+            }
+
+        .btn-warning {
+            background-color: #ffc107;
+            border-color: #e0a800;
+        }
+
+            .btn-warning:hover {
+                background-color: #e0a800;
+                border-color: #c69500;
+            }
+
+        .alert {
+            border-radius: 5px;
+        }
+
+        .table {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+            .table th {
+                background-color: #0056b3;
+                color: white;
+            }
+
+            .table tbody tr:nth-of-type(odd) {
+                background-color: #f1f1f1;
+            }
+
+            .table td, .table th {
+                vertical-align: middle;
+                text-align: center;
+            }
+
+        .form-group label {
+            font-weight: bold;
+        }
+
+        .form-control {
+            border-radius: 5px;
+            padding: 10px;
+        }
+
+        .modal-content {
+            border-radius: 10px;
+        }
+
+        .btn-sm {
+            padding: 5px 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="card">
+            <div class="card-header text-center">
+                Manage Lecturers
+            </div>
+            <div class="card-body">
+                <!-- Error/Success Messages -->
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger">
+                        @TempData["ErrorMessage"]
+                    </div>
+                }
+
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success">
+                        @TempData["SuccessMessage"]
+                    </div>
+                }
+
+                <h3>@(Model.LecturerToEdit != null ? "Edit Lecturer" : "Add New Lecturer")</h3>
+
+                <form asp-action="ManageLecturers" method="post">
+                    <input type="hidden" asp-for="LecturerToEdit.Id" />
+
+                    <div class="form-group">
+                        <label for="Name">Name</label>
+                        <input type="text" id="Name" name="Name" class="form-control" asp-for="LecturerToEdit.Name" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="Department">Department</label>
+                        <input type="text" id="Department" name="Department" class="form-control" asp-for="LecturerToEdit.Department" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="Email">Email</label>
+                        <input type="email" id="Email" name="Email" class="form-control" asp-for="LecturerToEdit.Email" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="Password">Password</label>
+                        <input type="password" id="Password" name="Password" class="form-control" asp-for="LecturerToEdit.Password" required />
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        @(Model.LecturerToEdit != null ? "Update Lecturer" : "Add Lecturer")
+                    </button>
+                </form>
+
+                <hr />
+
+                <h3>Lecturer List</h3>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Name</th>
+                            <th>Department</th>
+                            <th>Email</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var lecturer in Model.Lecturers)
+                        {
+                            <tr>
+                                <td>@lecturer.Id</td>
+                                <td>@lecturer.Name</td>
+                                <td>@lecturer.Department</td>
+                                <td>@lecturer.Email</td>
+                                <td>
+                                    <a href="@Url.Action("ManageLecturers", new { id = lecturer.Id })" class="btn btn-warning btn-sm">Edit</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

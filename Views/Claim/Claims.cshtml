@@ -1,0 +1,27 @@
+﻿@model List<monthly_claiming_system.Models.Claim>
+
+@{
+    ViewBag.Title = "Claims List";
+}
+
+<h2>Claims List</h2>
+
+<table>
+    <tr>
+        <th>Lecturer</th>
+        <th>Department</th>
+        <th>Hours Worked</th>
+        <th>Total Claim</th>
+        <th>Status</th>
+    </tr>
+    @foreach (var claim in Model)
+    {
+        <tr>
+            <td>@claim.LecturerName</td>
+            <td>@claim.LecturerDepartment</td>
+            <td>@claim.HoursWorked</td>
+            <td>@claim.TotalClaim</td>
+            <td>@claim.Status</td>
+        </tr>
+    }
+</table>

@@ -1,0 +1,31 @@
+﻿@model monthly_claiming_system.Models.User
+
+@{
+    ViewBag.Title = "Register";
+}
+
+<h2>Register</h2>
+
+@using (Html.BeginForm("Register", "Claim", FormMethod.Post))
+{
+    <div>
+        @Html.LabelFor(m => m.FullName)
+        @Html.TextBoxFor(m => m.FullName)
+        @Html.ValidationMessageFor(m => m.FullName)
+    </div>
+    <div>
+        @Html.LabelFor(m => m.Email)
+        @Html.TextBoxFor(m => m.Email)
+        @Html.ValidationMessageFor(m => m.Email)
+    </div>
+    <div>
+        @Html.LabelFor(m => m.Department)
+        @Html.TextBoxFor(m => m.Department)
+        @Html.ValidationMessageFor(m => m.Department)
+    </div>
+    <div>
+        @Html.Label("Password")
+        @Html.Password("Password")
+    </div>
+    <input type="submit" value="Register" />
+}

@@ -1,0 +1,369 @@
+﻿@{
+    ViewData["Title"] = "Lecturer Dashboard";
+    var lecturerEmail = ViewData["LecturerEmail"] as string;
+    var userName = ViewData["UserName"] as string;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: Arial, sans-serif;
+        }
+
+        .navbar {
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .navbar-brand {
+            font-weight: bold;
+        }
+
+        .jumbotron {
+            background-color: rebeccapurple;
+            color: white;
+            padding: 40px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+            .jumbotron h2 {
+                font-size: 2.5rem;
+            }
+
+        .card-body {
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .form-control {
+            border-radius: 5px;
+        }
+
+        .error-message {
+            color: red;
+            font-size: 0.875rem;
+            margin-top: 5px;
+        }
+
+        .total-amount {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: rebeccapurple;
+            margin-top: 20px;
+        }
+
+        .table th, .table td {
+            text-align: center;
+        }
+
+        .table th {
+            background-color: #f1f1f1;
+        }
+
+        .btn-primary {
+            background-color: rebeccapurple;
+            border-color: rebeccapurple;
+        }
+
+            .btn-primary:hover {
+                background-color: darkorchid;
+                border-color: darkorchid;
+            }
+
+        .alert {
+            margin-bottom: 20px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="#">Monthly Claiming System</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/Lecturer/Dashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="@Url.Action("Logout", "Lecturer")">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success" role="alert">
+                @TempData["SuccessMessage"]
+            </div>
+        }
+
+        <!-- Welcome Message -->
+        <div class="jumbotron text-center">
+            <h2>Welcome, @userName!</h2>
+            <p>Let's submit your claim below:</p>
+        </div>
+
+        <!-- Claim Submission Form -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h4 class="card-title">Submit a Claim</h4>
+                <form id="claimForm" method="post" enctype="multipart/form-data" asp-controller="Lecturer" asp-action="SubmitClaim">
+                    <div class="mb-3">
+                        <label for="HoursWorked" class="form-label">Hours Worked</label>
+                        <input type="number" class="form-control" id="HoursWorked" name="HoursWorked" required min="1" max="200">
+                        <div id="hoursError" class="error-message"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="HourlyRate" class="form-label">Hourly Rate</label>
+                        <input type="number" class="form-control" id="HourlyRate" name="HourlyRate" required min="1" max="1000">
+                        <div id="rateError" class="error-message"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="Month" class="form-label">Month</label>
+                        <select class="form-control" id="Month" name="Month" required>
+                            <option value="">Select Month</option>
+                            @foreach (var month in new[] { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" })
+                            {
+                                <option value="@month">@month</option>
+                            }
+                        </select>
+                        <div id="monthError" class="error-message"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="AdditionalNotes" class="form-label">Additional Notes</label>
+                        <textarea class="form-control" id="AdditionalNotes" name="AdditionalNotes"></textarea>
+                        <div id="notesError" class="error-message"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="SupportingDocument" class="form-label">Upload Supporting Document</label>
+                        <input type="file" class="form-control" id="SupportingDocument" name="SupportingDocument" required>
+                        <div id="documentError" class="error-message"></div>
+                    </div>
+
+                    <input type="hidden" id="LecturerEmail" name="LecturerEmail" value="@lecturerEmail" />
+
+                    <button type="submit" class="btn btn-primary">Submit Claim</button>
+                </form>
+
+                <!-- Display the calculated total amount -->
+                <div class="total-amount">
+                    <p id="totalAmount">Total Amount: R0.00</p>
+                </div>
+            </div>
+        </div>
+
+        @if (ViewData.ModelState.ErrorCount > 0)
+        {
+            <div class="alert alert-danger" role="alert">
+                Please fix the errors below and try again.
+            </div>
+        }
+
+        @model List<ClaimViewModel>
+
+        @{
+            var lecturerName = ViewData["LecturerName"] as string;
+            var claims = ViewData["Claims"] as List<Claim>;
+        }
+
+        <h2>Your Claims, @lecturerName!</h2>
+
+        <h3>Your Claims</h3>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Month</th>
+                    <th>Hours Worked</th>
+                    <th>Hourly Rate</th>
+                    <th>Total Claim</th>
+                    <th>Status</th>
+                    <th>Supporting Document</th>
+                    <th>RejectionReason</th>
+                    <th>AdditionalNotes</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (claims != null && claims.Any())
+                {
+                    foreach (var claim in claims)
+                    {
+                        <tr>
+                            <td>@claim.Id</td>
+                            <td>@claim.Month</td>
+                            <td>@claim.HoursWorked</td>
+                            <td>@claim.HourlyRate</td>
+                            <td>@claim.TotalClaim</td>
+                            <td>
+                                @if (claim.Status == "Approved")
+                                {
+                                    <span class="text-success">@claim.Status</span>
+                                }
+                                else if (claim.Status == "Pending")
+                                {
+                                    <span class="text-warning">Pending Admin Approval</span>
+                                }
+                                else
+                                {
+                                    <span class="text-danger">@claim.Status</span>
+                                }
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(claim.SupportingDocument))
+                                {
+                                    <a href="/uploads/@claim.SupportingDocument" target="_blank">
+                                        Download @claim.OriginalFileName
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span>No Document</span>
+                                }
+                            </td>
+                            <td>@claim.RejectionReason</td>
+                            <td>@claim.AdditionalNotes</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="9" class="text-center">No claims found.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+
+
+        <!-- Scripts -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            // Function to update the total amount based on user input
+            function updateTotalAmount() {
+                var hoursWorked = document.getElementById('HoursWorked').value;
+                var hourlyRate = document.getElementById('HourlyRate').value;
+                var totalAmountElement = document.getElementById('totalAmount');
+
+                if (hoursWorked && hourlyRate) {
+                    var totalAmount = hoursWorked * hourlyRate;
+                    totalAmountElement.innerHTML = 'Total Amount: R' + totalAmount.toFixed(2);
+                } else {
+                    totalAmountElement.innerHTML = 'Total Amount: R0.00';
+                }
+            }
+
+            // Function to validate inputs without blocking submission
+            function validateInputs() {
+                var isValid = true;
+
+                var hoursWorked = document.getElementById('HoursWorked').value;
+                var hourlyRate = document.getElementById('HourlyRate').value;
+                var month = document.getElementById('Month').value;
+                var additionalNotes = document.getElementById('AdditionalNotes').value;
+                var supportingDocument = document.getElementById('SupportingDocument').files[0];
+
+                // Reset all error messages
+                document.getElementById('hoursError').innerText = "";
+                document.getElementById('rateError').innerText = "";
+                document.getElementById('monthError').innerText = "";
+                document.getElementById('notesError').innerText = "";
+                document.getElementById('documentError').innerText = "";
+
+                // Validate hours worked (must be positive)
+                if (hoursWorked <= 0 || isNaN(hoursWorked)) {
+                    document.getElementById('hoursError').innerText = "Please enter a valid number of hours worked (greater than 0).";
+                    isValid = false;
+                }
+
+                // Validate hourly rate (must be positive)
+                if (hourlyRate <= 0 || isNaN(hourlyRate)) {
+                    document.getElementById('rateError').innerText = "Please enter a valid hourly rate (greater than 0).";
+                    isValid = false;
+                }
+
+                // Validate month selection
+                if (month === "") {
+                    document.getElementById('monthError').innerText = "Please select a month.";
+                    isValid = false;
+                }
+
+                // Validate additional notes
+                if (additionalNotes.trim() === "") {
+                    document.getElementById('notesError').innerText = "Please provide additional notes.";
+                    isValid = false;
+                }
+
+                // Validate supporting document
+                if (!supportingDocument) {
+                    document.getElementById('documentError').innerText = "Please upload a supporting document.";
+                    isValid = false;
+                } else {
+                    // Validate file type (PDF or DOCX only)
+                    var validFileTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+                    if (!validFileTypes.includes(supportingDocument.type)) {
+                        document.getElementById('documentError').innerText = "Invalid file type. Please upload a PDF or DOCX file.";
+                        isValid = false;
+                    }
+
+                    // Validate file size (10MB max)
+                    var maxSize = 10 * 1024 * 1024; // 10MB
+                    if (supportingDocument.size > maxSize) {
+                        document.getElementById('documentError').innerText = "File is too large. Please upload a file smaller than 10MB.";
+                        isValid = false;
+                    }
+                }
+
+                return isValid; // Return validation result
+            }
+
+            // Event listeners for real-time validation and calculations
+            document.getElementById('HoursWorked').addEventListener('input', function () {
+                updateTotalAmount();
+            });
+            document.getElementById('HourlyRate').addEventListener('input', function () {
+                updateTotalAmount();
+            });
+
+            // Handle form submission (allow submission even if validation fails)
+            document.getElementById('claimForm').onsubmit = function (event) {
+                // Call validation but don't prevent form submission
+                var isValid = validateInputs();
+                if (!isValid) {
+                    // If invalid, show a general message or allow submission with warnings
+                    alert("There are validation issues, but the form will still submit.");
+                    // Optionally, you can display errors more prominently here if needed
+                    event.preventDefault(); // Prevent submission if invalid (if needed)
+                }
+                // Continue form submission regardless of validation outcome
+                return true;  // Allow the form to submit
+            };
+        </script>
+
+
+
+    </div>
+</body>
+</html>

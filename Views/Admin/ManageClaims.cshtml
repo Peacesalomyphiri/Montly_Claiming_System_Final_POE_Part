@@ -1,0 +1,247 @@
+﻿@model IEnumerable<ClaimViewModel>
+
+@{
+    ViewData["Title"] = "Manage Claims";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f4f6f9; /* Light background color */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+        }
+
+        .container {
+            margin-top: 50px;
+        }
+
+        .table th, .table td {
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: #f1f1f1; /* Lighter gray for odd rows */
+        }
+
+        .table th {
+            background-color: #0056b3; /* Blue color for table header */
+            color: white;
+            font-weight: bold;
+        }
+
+        .table td {
+            font-size: 1rem;
+        }
+
+        .modal-content {
+            border-radius: 8px;
+        }
+
+        .btn {
+            border-radius: 5px;
+            padding: 8px 15px;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background-color: #004085;
+            border-color: #003366;
+        }
+
+            .btn-primary:hover {
+                background-color: #003366;
+                border-color: #00264d;
+            }
+
+        .btn-success {
+            background-color: #28a745;
+            border-color: #218838;
+        }
+
+            .btn-success:hover {
+                background-color: #218838;
+                border-color: #1e7e34;
+            }
+
+        .btn-danger {
+            background-color: #dc3545;
+            border-color: #c82333;
+        }
+
+            .btn-danger:hover {
+                background-color: #c82333;
+                border-color: #bd2130;
+            }
+
+        .modal-header {
+            background-color: #0056b3; /* Blue color for modal header */
+            color: white;
+        }
+
+        .modal-footer .btn-secondary {
+            background-color: #6c757d;
+        }
+
+        .modal-footer .btn-danger {
+            background-color: #dc3545;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: space-around;
+        }
+
+            .action-buttons button {
+                margin: 0 5px;
+            }
+
+        .report-btn {
+            margin-top: 30px;
+        }
+
+        .text-center {
+            margin-top: 20px;
+        }
+
+        .card {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            background-color: white;
+        }
+
+        .card-header {
+            font-size: 1.5rem;
+            color: #0056b3;
+            font-weight: bold;
+        }
+
+        .card-body {
+            padding: 15px;
+        }
+
+        .btn-sm {
+            padding: 5px 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Card for the Claims Management Section -->
+        <div class="card">
+            <div class="card-header text-center">
+                Manage Claims
+            </div>
+
+            <div class="card-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Claim ID</th>
+                            <th>Lecturer Name</th>
+                            <th>Department</th>
+                            <th>Month</th>
+                            <th>Hours Worked</th>
+                            <th>Hourly Rate</th>
+                            <th>Total Claim</th>
+                            <th>Status</th>
+                            <th>Supporting Document</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var claim in Model)
+                        {
+                            <tr>
+                                <td>@claim.Id</td>
+                                <td>@claim.LecturerName</td>
+                                <td>@claim.LecturerDepartment</td>
+                                <td>@claim.Month</td>
+                                <td>@claim.HoursWorked</td>
+                                <td>@claim.HourlyRate.ToString("C")</td>
+                                <td>@claim.TotalClaim.ToString("C")</td>
+                                <td>@claim.Status</td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(claim.SupportingDocument))
+                                    {
+                                        <a href="@Url.Content(claim.SupportingDocument)" target="_blank" class="btn btn-info btn-sm">View Document</a>
+                                    }
+                                    else
+                                    {
+                                        <span>No Document</span>
+                                    }
+                                </td>
+                                <td class="action-buttons">
+                                    @if (claim.Status != "Approved" && claim.Status != "Rejected")
+                                    {
+                                        <form asp-action="UpdateClaimStatus" method="post" style="display:inline;">
+                                            <input type="hidden" name="claimId" value="@claim.Id" />
+                                            <input type="hidden" name="action" value="approve" />
+                                            <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                                        </form>
+
+                                        <!-- Reject Button -->
+                                        <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#rejectModal_@claim.Id">Reject</button>
+
+                                        <!-- Modal for Rejection Reason -->
+                                        <div class="modal fade" id="rejectModal_@claim.Id" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="rejectModalLabel">Enter Rejection Reason</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <form asp-action="RejectClaim" method="post">
+                                                        <div class="modal-body">
+                                                            <input type="hidden" name="claimId" value="@claim.Id" />
+                                                            <div class="mb-3">
+                                                                <label for="rejectionReason" class="form-label">Reason for Rejection</label>
+                                                                <textarea class="form-control" id="rejectionReason" name="rejectionReason" rows="3" required></textarea>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                            <button type="submit" class="btn btn-danger">Reject</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span>@claim.Status</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                <!-- Button to Generate Report of Approved Claims -->
+                <div class="text-center report-btn">
+                    <a href="@Url.Action("GenerateReport", "Admin")" class="btn btn-primary">Generate Approved Claims Report</a>
+                </div>
+
+                <!-- Button to Go to Manage Lecturers Page -->
+                <div class="text-center">
+                    <a href="@Url.Action("ManageLecturers", "Admin")" class="btn btn-secondary">Manage Lecturers</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
